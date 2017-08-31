@@ -1,1 +1,1 @@
-![Banner Color Selector](img/banner.png)
+![Banner Tutorial Screeen](img/banner.png)
