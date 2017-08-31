@@ -1,2 +1,1 @@
-# TutorialScreen
-A tutorial screen for Android
+![Banner Color Selector](img/banner.png)
