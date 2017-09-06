@@ -5,10 +5,20 @@ import android.graphics.Point;
 import android.view.View;
 
 /**
- * Created by Hery on 29/08/2017.
+ * A tutorial screen for Android.
+ * <p>
+ * Created by Hery Lopez on 29/08/2017..
+ * <p>
+ * Github:
+ * <p>
+ * Author: <a href="https://github.com/HeryLopez/">https://github.com/HeryLopez</a>
+ * <br/>Project:  <a href="https://github.com/HeryLopez/TutorialScreen">https://github.com/HeryLopez/TutorialScreen</a>
  */
+public class Properties {
 
-class Properties {
+    public enum TargetStyle {
+        CIRCULAR_TARGET, RECTANGULAR_TARGET, NO_TARGET
+    }
 
     private final Activity activity;
     private final Point screenSize;
@@ -22,6 +32,10 @@ class Properties {
 
     private boolean IsClickEventEnable = false;
 
+    private TargetStyle targetStyle;
+
+    private boolean showNextButton = false;
+    private boolean showNormalButton = false;
     private String nextButtonText, normalButtonText;
     private View.OnClickListener nextButtonListener, normalButtonListener;
 
@@ -126,6 +140,14 @@ class Properties {
     }
 
 
+    TargetStyle getTargetStyle() {
+        return targetStyle;
+    }
+
+    void setTargetStyle(TargetStyle targetStyle) {
+        this.targetStyle = targetStyle;
+    }
+
     String getNextButtonText() {
         return nextButtonText;
     }
@@ -173,6 +195,24 @@ class Properties {
 
     Point getScreenSize() {
         return screenSize;
+    }
+
+
+
+    public boolean showNextButton() {
+        return showNextButton;
+    }
+
+    public void showNextButton(boolean showNextButton) {
+        this.showNextButton = showNextButton;
+    }
+
+    public boolean showNormalButton() {
+        return showNormalButton;
+    }
+
+    public void showNormalButton(boolean showNormalButton) {
+        this.showNormalButton = showNormalButton;
     }
 
 }

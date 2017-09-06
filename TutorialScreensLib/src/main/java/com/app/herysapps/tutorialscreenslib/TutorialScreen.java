@@ -15,6 +15,16 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+/**
+ * A tutorial screen for Android.
+ * <p>
+ * Created by Hery Lopez on 29/08/2017..
+ * <p>
+ * Github:
+ * <p>
+ * Author: <a href="https://github.com/HeryLopez/">https://github.com/HeryLopez</a>
+ * <br/>Project:  <a href="https://github.com/HeryLopez/TutorialScreen">https://github.com/HeryLopez/TutorialScreen</a>
+ */
 public class TutorialScreen {
 
     // Properties
@@ -26,6 +36,7 @@ public class TutorialScreen {
     // Parent
     private ViewGroup mParent;
 
+    private boolean IsActive = false;
 
     private TutorialScreen(Properties properties) {
         mProperties = properties;
@@ -34,73 +45,210 @@ public class TutorialScreen {
     }
 
 
-
+    /**
+     * Text for the title of tutorial screen.
+     *
+     * @param s title
+     * @return TutorialScreen
+     */
     public TutorialScreen setTitle(String s) {
         mProperties.setTitle(s);
         return this;
     }
 
+    /**
+     * Text for the message of tutorial screen.
+     *
+     * @param s message
+     * @return TutorialScreen
+     */
     public TutorialScreen setMessage(String s) {
         mProperties.setMessage(s);
         return this;
     }
 
+    /**
+     * Enable/Disable the click event in the target view.
+     *
+     * @param b Enable/Disable
+     * @return TutorialScreen
+     */
     public TutorialScreen setClickEventEnable(boolean b) {
         mProperties.setClickEventEnable(b);
         return this;
     }
 
+    /**
+     * Style for the target. CIRCULAR_TARGET, RECTANGULAR_TARGET or NO_TARGET
+     *
+     * @param style Style for the target
+     * @return TutorialScreen
+     */
+    public TutorialScreen setTargetStyle(Properties.TargetStyle style) {
+        mProperties.setTargetStyle(style);
+        return this;
+    }
+
+    /**
+     * Initialize the Next Button
+     *
+     * @param text Label for the button
+     * @param listener Implementation for the onClick event
+     * @return TutorialScreen
+     */
     public TutorialScreen setNextButton(String text, final View.OnClickListener listener) {
         mProperties.setNextButtonText(text);
         mProperties.setNextButtonListener(listener);
         return this;
     }
 
+    /**
+     * Change the label next button.
+     *
+     * @param text Label for the button
+     * @return TutorialScreen
+     */
+    public TutorialScreen setNextButtonText(String text) {
+        mProperties.setNextButtonText(text);
+        return this;
+    }
+
+    /**
+     * Initialize the Normal Button
+     *
+     * @param text Label for the button
+     * @param listener Implementation for the onClick event
+     * @return TutorialScreen
+     */
     public TutorialScreen setNormalButton(String text, final View.OnClickListener listener) {
         mProperties.setNormalButtonText(text);
         mProperties.setNormalButtonListener(listener);
         return this;
     }
 
+    /**
+     * Change the label next button.
+     *
+     * @param text Label for the button
+     * @return TutorialScreen
+     */
+    public TutorialScreen setNormalButtonText(String text) {
+        mProperties.setNormalButtonText(text);
+        return this;
+    }
+
+    /**
+     * Color for the tutorial screen background
+     *
+     * @param color android.graphics.Color;
+     * @return TutorialScreen
+     */
     public TutorialScreen setModalColor(int color) {
         mProperties.setModalColor(color);
         return this;
     }
 
+    /**
+     * Color for the tutorial screen title
+     *
+     * @param color android.graphics.Color;
+     * @return TutorialScreen
+     */
     public TutorialScreen setTitleColor(int color) {
         mProperties.setTitleColor(color);
         return this;
     }
 
+    /**
+     * Color for the tutorial screen message
+     *
+     * @param color android.graphics.Color;
+     * @return TutorialScreen
+     */
     public TutorialScreen setMessageColor(int color) {
         mProperties.setMessageColor(color);
         return this;
     }
 
+    /**
+     * Color for the target contour
+     *
+     * @param color android.graphics.Color;
+     * @return TutorialScreen
+     */
     public TutorialScreen setTargetColor(int color) {
         mProperties.setTargetColor(color);
         return this;
     }
 
+    /**
+     * Color for the buttons background
+     *
+     * @param color android.graphics.Color;
+     * @return TutorialScreen
+     */
     public TutorialScreen setBackButtonColor(int color) {
         mProperties.setBackButtonColor(color);
         return this;
     }
 
+    /**
+     * Color for the buttons text
+     *
+     * @param color android.graphics.Color;
+     * @return TutorialScreen
+     */
     public TutorialScreen setTextButtonColor(int color) {
         mProperties.setTextButtonColor(color);
         return this;
     }
 
+    /**
+     * Show/Hide the Next Button
+     *
+     * @param showNextButton Show/Hide
+     * @return TutorialScreen
+     */
+    public TutorialScreen showNextButton(boolean showNextButton) {
+        mProperties.showNextButton(showNextButton);
+        return this;
+    }
 
+    /*
+    public TutorialScreen showNormalButton(boolean showNormalButton) {
+        mProperties.showNormalButton(showNormalButton);
+        return this;
+    }
+    */
 
+    /**
+     * Indicate if the tutorial screen is in the window
+     *
+     * @return boolean
+     */
+    public boolean IsActive(){
+       return IsActive;
+    }
+
+    /**
+     * Get Id (Used in show(view, id)). That allows to identify the View in the OnClick event.
+     * @return Id of view
+     */
     public String getTargetViewId(){
         return mProperties.getTargetViewId();
     }
 
 
-
+    /**
+     * Assign the target view and initialize the tutorial screen.
+     *
+     * @param v Target View
+     * @param id Identifier for the view. See getTargetViewId
+     * @return TutorialScreen
+     */
     public TutorialScreen show(View v, String id) {
+
+        IsActive = true;
 
         mProperties.setTargetView(v);
         mProperties.setTargetViewId(id);
@@ -146,7 +294,12 @@ public class TutorialScreen {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
         );
+        int [] pos = new int[2];
+        mParent.getLocationOnScreen(pos);
+        // frameLayoutWithHole's coordinates are calculated taking full screen height into account
+        // but we're adding it to the content area only, so we need to offset it to the same Y value of contentArea
 
+        layoutParams.setMargins(0,-pos[1],0,0);
         mParent.addView(mModalScreen, layoutParams);
     }
 
@@ -166,12 +319,11 @@ public class TutorialScreen {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
         );
-        paramsRoot.setMargins(margin40, margin40 + 100, margin40, margin40 ); // < top > botton
-
         LinearLayout lineLayoutRoot = new LinearLayout(mProperties.getActivity());
         lineLayoutRoot.setOrientation(LinearLayout.VERTICAL);
         lineLayoutRoot.setGravity((targetViewY > (mParent.getHeight()/2))? Gravity.TOP : Gravity.BOTTOM );
         lineLayoutRoot.setLayoutParams(paramsRoot);
+        lineLayoutRoot.setPadding(margin40, margin40 + 100, margin40, margin40 );
 
             LinearLayout.LayoutParams paramsDialog = new LinearLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
@@ -246,7 +398,7 @@ public class TutorialScreen {
                     button.setLayoutParams(paramsButton);
 
                 lineLayoutButtons.addView(buttonClose);
-                if(mProperties.getNextButtonText() != null && mProperties.getNextButtonListener() != null){
+                if(mProperties.showNextButton()){
                     lineLayoutButtons.addView(button);
                 }
 
@@ -265,7 +417,12 @@ public class TutorialScreen {
     }
 
 
+    /**
+     * Clear the tutorial screen from the window
+     */
     public void clear(){
+        IsActive = false;
+
         // Remove Modal Screen
         if (mModalScreen !=null) {
             mParent.removeView(mModalScreen);
@@ -278,9 +435,7 @@ public class TutorialScreen {
 
 
     /**
-     * Builder
-     *
-     *
+     * Builder for creation of a tutorial screen instance (Builder Patter).
      */
     public static class Builder { // Builder Patter: The activity value and the screen size don't change in the TutorialScreen instance (immutable).
 
@@ -288,7 +443,8 @@ public class TutorialScreen {
 
         public Builder(Activity activity) {
             Point screenSize = new Point();
-            activity.getWindowManager().getDefaultDisplay().getSize(screenSize);
+            screenSize.x = activity.getResources().getDisplayMetrics().widthPixels;
+            screenSize.y = activity.getResources().getDisplayMetrics().heightPixels;
 
             mProperties = new Properties(activity, screenSize);
 

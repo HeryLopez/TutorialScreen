@@ -7,17 +7,31 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-
+/**
+ * A tutorial screen for Android.
+ * <p>
+ * Created by Hery Lopez on 29/08/2017.
+ * <p>
+ * Github:
+ * <p>
+ * Author: <a href="https://github.com/HeryLopez/">https://github.com/HeryLopez</a>
+ * <br/>Project:  <a href="https://github.com/HeryLopez/TutorialScreen">https://github.com/HeryLopez/TutorialScreen</a>
+ */
 public class ModalScreen extends FrameLayout {
 
-    private Paint mTransparentCircle, mStrokeCircle;
+    private Paint mTransparent, mStroke;
     private Bitmap mBitmap;
     private Canvas mCanvas;
+    private int[] mTargetPosition;
+
+    private float mLeft, mTop;
     private int mRadius;
-    private int[] mPos;
+    private RectF mRectF;
+    private float mRoundCorner;
 
     private Properties mProperties;
 
@@ -30,21 +44,6 @@ public class ModalScreen extends FrameLayout {
 
         mProperties = properties;
 
-        // Get the target position
-        int[] pos = new int[2];
-        mProperties.getTargetView().getLocationOnScreen(pos);
-        mPos = pos;
-
-        // Get the target radius
-        float mDensity = mProperties.getActivity().getResources().getDisplayMetrics().density;
-        int padding = (int) (20 * mDensity + 0.5f);
-
-        if (mProperties.getTargetView().getHeight() > mProperties.getTargetView().getWidth()) {
-            mRadius = mProperties.getTargetView().getHeight() / 2 + padding;
-        } else {
-            mRadius = mProperties.getTargetView().getWidth() / 2 + padding;
-        }
-
         // Initialize the screen
         initialize();
     }
@@ -52,27 +51,69 @@ public class ModalScreen extends FrameLayout {
     private void initialize() {
         setWillNotDraw(false);
 
+        float mDensity = mProperties.getActivity().getResources().getDisplayMetrics().density;
+
+        // Get the target position
+        int[] pos = new int[2];
+        mProperties.getTargetView().getLocationOnScreen(pos);
+        mTargetPosition = pos;
+
         mBitmap = Bitmap.createBitmap(mProperties.getScreenSize().x, mProperties.getScreenSize().y, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
         // Transparent Circle
-        mTransparentCircle = new Paint();
-        mTransparentCircle.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        mTransparentCircle.setFlags(Paint.ANTI_ALIAS_FLAG);
+        mTransparent = new Paint();
+        mTransparent.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        mTransparent.setFlags(Paint.ANTI_ALIAS_FLAG);
 
         // Stroke
         if(mProperties.getTargetColor() != -1){
-            mStrokeCircle = new Paint();
-            mStrokeCircle.setColor(mProperties.getTargetColor());
-            mStrokeCircle.setFlags(Paint.ANTI_ALIAS_FLAG);
+            mStroke = new Paint();
+            mStroke.setColor(mProperties.getTargetColor());
+            mStroke.setFlags(Paint.ANTI_ALIAS_FLAG);
+            mStroke.setStyle(Paint.Style.STROKE);
+            mStroke.setStrokeWidth(10);
+        }
+
+        if(mProperties.getTargetStyle() == Properties.TargetStyle.CIRCULAR_TARGET){
+
+            // Get the target radius
+            int padding = (int) (16 * mDensity + 0.5f);
+
+            if (mProperties.getTargetView().getHeight() > mProperties.getTargetView().getWidth()) {
+                mRadius = mProperties.getTargetView().getHeight() / 2 + padding;
+            } else {
+                mRadius = mProperties.getTargetView().getWidth() / 2 + padding;
+            }
+
+            // Get position of circle
+            mLeft = mTargetPosition[0] + mProperties.getTargetView().getWidth() / 2;
+            mTop = mTargetPosition[1] + mProperties.getTargetView().getHeight() / 2;
+
+        } else if(mProperties.getTargetStyle() == Properties.TargetStyle.RECTANGULAR_TARGET){
+
+            mRoundCorner = (int) (10 * mDensity);
+
+            int padding = (int) (6 * mDensity + 0.5f);
+
+            mLeft = mTargetPosition[0] - padding;
+            mTop = mTargetPosition[1] - padding;
+
+            float mRight = mTargetPosition[0] + mProperties.getTargetView().getWidth() + padding;
+            float mBottom = mTargetPosition[1] + mProperties.getTargetView().getHeight() + padding;
+
+            mRectF = new RectF(mLeft, mTop, mRight, mBottom);
+
+        } else if(mProperties.getTargetStyle() == Properties.TargetStyle.NO_TARGET){
+            // Do nothing
         }
     }
 
     private boolean isWithinButton(MotionEvent ev) {
-        return ev.getRawY() >= mPos[1] &&
-                ev.getRawY() <= (mPos[1] + mProperties.getTargetView().getHeight()) &&
-                ev.getRawX() >= mPos[0] &&
-                ev.getRawX() <= (mPos[0] + mProperties.getTargetView().getWidth());
+        return ev.getRawY() >= mTargetPosition[1] &&
+                ev.getRawY() <= (mTargetPosition[1] + mProperties.getTargetView().getHeight()) &&
+                ev.getRawX() >= mTargetPosition[0] &&
+                ev.getRawX() <= (mTargetPosition[0] + mProperties.getTargetView().getWidth());
     }
 
     @Override
@@ -80,20 +121,28 @@ public class ModalScreen extends FrameLayout {
         super.onDraw(canvas);
         mBitmap.eraseColor(Color.TRANSPARENT);
 
-        float cx = mPos[0] + mProperties.getTargetView().getWidth() / 2;
-        float cy = mPos[1] + mProperties.getTargetView().getHeight() / 2;
-
         // Fill the canvas with the modal color
         mCanvas.drawColor(mProperties.getModalColor());
 
-        // Draw transparent circle
-        mCanvas.drawCircle(cx, cy, mRadius, mTransparentCircle);
+        if(mProperties.getTargetStyle() == Properties.TargetStyle.CIRCULAR_TARGET){
+            // Draw transparent circle
+            mCanvas.drawCircle(mLeft, mTop, mRadius, mTransparent);
 
-        // Draw stroke circle
-        if(mProperties.getTargetColor() != -1){
-            mStrokeCircle.setStyle(Paint.Style.STROKE);
-            mStrokeCircle.setStrokeWidth(10);
-            mCanvas.drawCircle(cx, cy, mRadius, mStrokeCircle);
+            // Draw stroke circle
+            if(mProperties.getTargetColor() != -1){
+                mCanvas.drawCircle(mLeft, mTop, mRadius, mStroke);
+            }
+
+        } else if(mProperties.getTargetStyle() == Properties.TargetStyle.RECTANGULAR_TARGET){
+
+            mCanvas.drawRoundRect(mRectF,  mRoundCorner,  mRoundCorner, mTransparent);
+
+            if(mProperties.getTargetColor() != -1){
+                mCanvas.drawRoundRect(mRectF,  mRoundCorner,  mRoundCorner, mStroke);
+            }
+
+        } else if(mProperties.getTargetStyle() == Properties.TargetStyle.NO_TARGET){
+            // Do nothing
         }
 
         canvas.drawBitmap(mBitmap, 0, 0, null);
